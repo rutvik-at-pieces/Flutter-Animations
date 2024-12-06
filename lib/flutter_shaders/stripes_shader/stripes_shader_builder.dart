@@ -69,8 +69,7 @@ class _MyShaderState extends State<StripesShaderBuilder> {
           (ui.Image image, Size size, Canvas canvas) {
             if (widget.updateShaderInputs != null) {
               shader = shader.shader(
-                floatUniforms:
-                    widget.updateShaderInputs!(shader, size, delta).uniforms,
+                floatUniforms: widget.updateShaderInputs!(shader, size, delta).uniforms,
                 samplerUniforms: [],
               );
             } else {
@@ -100,7 +99,7 @@ class _MyShaderState extends State<StripesShaderBuilder> {
           },
         );
       },
-      assetKey: "shaders/stripes.glsl",
+      assetKey: "packages/flutter_animations/shaders/stripes.glsl",
       child: widget.child,
     );
     // FutureBuilder<Stripes>(
