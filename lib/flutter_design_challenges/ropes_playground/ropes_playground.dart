@@ -125,7 +125,7 @@ class _RopesViewState extends State<RopesPhysics> {
     oldSegments = ropeSegments;
   }
 
-  void simulate() {
+  void applyForces() {
     Vector2 forceGravity = Vector2(0, 1);
 
     for (var i = 0; i < segments; i++) {
@@ -203,7 +203,7 @@ class _RopesViewState extends State<RopesPhysics> {
       elapsedDuration = value;
       setState(() {
         delta += 1 / 60;
-        simulate();
+        // applyForces();
       });
     })
       ..start();
