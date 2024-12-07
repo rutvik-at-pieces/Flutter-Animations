@@ -43,25 +43,6 @@ class _ParticlesSystemState extends State<ParticlesSystem> {
 
   late List<String> audioData;
 
-  List<List<String>> audioDataList = [
-    [
-      'assets/dm.json',
-      'dance_monkey.mp3',
-    ],
-    [
-      'assets/soy.json',
-      'shape_of_you.mp3',
-    ],
-    [
-      'assets/sp.json',
-      'surface_pressure.mp3',
-    ],
-    [
-      'assets/clb.json',
-      'clb.mp3',
-    ],
-  ];
-
   Future<void> parseData() async {
     final json = await rootBundle.loadString(audioData[0]);
     Map<String, dynamic> audioDataMap = {
@@ -96,10 +77,11 @@ class _ParticlesSystemState extends State<ParticlesSystem> {
     // TODO: implement initState
     super.initState();
     // Change this value to number of audio samples you want.
-    // Values between 256 and 1024 are good for showing [RectangleWaveform] and [SquigglyWaveform]
-    // While the values above them are good for showing [PolygonWaveform]
     totalSamples = 1000;
-    audioData = audioDataList[3];
+    audioData = [
+      'assets/clb.json',
+      'clb.mp3',
+    ];
     audioPlayer = AudioCache(
       fixedPlayer: AudioPlayer(),
     );
@@ -109,16 +91,18 @@ class _ParticlesSystemState extends State<ParticlesSystem> {
     elapsedDuration = const Duration();
     parseData();
     audioPlayer.fixedPlayer!.onPlayerCompletion.listen((_) {
-      setState(() {
-        musicAmplitude = 0;
-        elapsedDuration = maxDuration;
-      });
+      if (mounted)
+        setState(() {
+          musicAmplitude = 0;
+          elapsedDuration = maxDuration;
+        });
     });
     audioPlayer.fixedPlayer!.onAudioPositionChanged.listen((Duration timeElapsed) {
-      setState(() {
-        elapsedDuration = timeElapsed;
-        updateActiveIndex;
-      });
+      if (mounted)
+        setState(() {
+          elapsedDuration = timeElapsed;
+          updateActiveIndex;
+        });
     });
   }
 
@@ -132,7 +116,7 @@ class _ParticlesSystemState extends State<ParticlesSystem> {
   void dispose() async {
     // TODO: implement dispose
     await audioPlayer.fixedPlayer!.pause();
-    audioPlayer.fixedPlayer!.dispose();
+    await audioPlayer.fixedPlayer!.dispose();
     super.dispose();
   }
 

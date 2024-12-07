@@ -23,7 +23,7 @@ class CellularNoiseBuilder extends StatelessWidget {
                 return fragmentShader
                   ..setFloat(0, size.width)
                   ..setFloat(1, size.height)
-                  ..setFloat(2, delta);
+                  ..setFloat(2, delta / 2);
               },
             ),
           ),

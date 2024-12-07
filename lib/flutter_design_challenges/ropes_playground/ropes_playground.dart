@@ -16,19 +16,21 @@ class RopesPlayground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 233, 233, 233),
-      body: Stack(children: [
-        RopeBridge(
-          startPoint: Offset(size.width * 0.3, 200),
-          endPoint: Offset(size.width * 0.7, 300),
-        ),
-        SinglePointRope(
-          startPoint: Offset(size.width * 0.2, 300),
-        ),
-      ]),
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      final width = constraints.maxWidth;
+      return Scaffold(
+        backgroundColor: const Color.fromARGB(255, 233, 233, 233),
+        body: Stack(children: [
+          RopeBridge(
+            startPoint: Offset(width * 0.3, 200),
+            endPoint: Offset(width * 0.7, 300),
+          ),
+          SinglePointRope(
+            startPoint: Offset(width * 0.2, 300),
+          ),
+        ]),
+      );
+    });
   }
 }
 
@@ -100,7 +102,6 @@ class RopesPhysics extends StatefulWidget {
 }
 
 class _RopesViewState extends State<RopesPhysics> {
-  Vector2 wind = Vector2.zero();
   late Offset ropeStartPoint;
   late Offset ropeEndPoint;
   double elapsedDelta = 0;
@@ -135,7 +136,6 @@ class _RopesViewState extends State<RopesPhysics> {
       oldSegments[i] = firstSegmentPoint;
       Vector2 latestPosition = firstSegmentPoint.posNow + velocity;
 
-      latestPosition += wind;
       latestPosition += forceGravity;
 
       firstSegmentPoint = Offset(latestPosition.x, latestPosition.y);
@@ -148,7 +148,7 @@ class _RopesViewState extends State<RopesPhysics> {
   }
 
   /// Constraint resolution algorithm for a rope simulation, ensuring that the segments of the rope maintain a fixed
-  /// length between them.
+  /// length/elasticity between them.
   void applyConstraints() {
     // Fix start and end points.
     ropeSegments[0] = ropeStartPoint;
@@ -166,7 +166,6 @@ class _RopesViewState extends State<RopesPhysics> {
       // Calculate direction to adjust the segments in.
       Vector2 changeDir = Vector2.zero();
       if (dist > ropeSegmentLength) {
-        // Move segment point closer.
         changeDir = (firstSegmentPoint - secondSegmentPoint).normalized();
       } else if (dist < ropeSegmentLength) {
         changeDir = (secondSegmentPoint - firstSegmentPoint).normalized();
@@ -241,7 +240,6 @@ class _RopesViewState extends State<RopesPhysics> {
               child: Draggable(
                 onDragUpdate: ((details) {
                   ropeStartPoint = details.globalPosition;
-                  //  wind = details.delta.toVector2();
                 }),
                 feedback: const SizedBox.shrink(),
                 child: Container(
