@@ -8,9 +8,6 @@ import 'dart:developer';
 import 'package:flame/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_animations/flutter_shaders/stripes_shader/stripes.dart';
-import 'package:flutter_animations/flutter_shaders/stripes_shader/stripes_shader_builder.dart';
-import 'package:flutter_animations/util/extensions/colot_to_vector.dart';
 
 const EPSILON = 1e-6;
 
@@ -170,8 +167,7 @@ class _RopesViewState extends State<RopesPhysics> {
 
       Vector2 changedAmount = changeDir * error;
       if (i != 0) {
-        firstSegment -= changedAmount *
-            0.5; // multiply by error for proper single point hanging and by 0.5 for bridge;
+        firstSegment -= changedAmount * 0.5; // multiply by error for proper single point hanging and by 0.5 for bridge;
         ropeSegments[i] = Offset(firstSegment.x, firstSegment.y);
         secondSegment += (changedAmount * 0.5);
         ropeSegments[i + 1] = Offset(secondSegment.x, secondSegment.y);
@@ -291,33 +287,11 @@ class _RopesViewState extends State<RopesPhysics> {
             ignoring: true,
             child: Stack(
               children: [
-                StripesShaderBuilder(
-                  builder: (shader, delta) {
-                    shader.shader(
-                      floatUniforms: StripesShaderArguments(
-                        size: Size(
-                          constraints.maxWidth,
-                          constraints.maxHeight,
-                        ),
-                        delta: delta,
-                        tiles: 2.0,
-                        speed: delta / 15,
-                        direction: 0.5, // -1 to 1
-                        warpScale: 1,
-                        warpTiling: 5,
-                        color1: Colors.amber.toColorVector(),
-                        color2: Colors.blue.toColorVector(),
-                      ).uniforms,
-                      samplerUniforms: [],
-                    );
-                    return CustomPaint(
-                      painter: StringsPainter(
-                        shader,
-                        ropeSegments,
-                      ),
-                      size: Size.infinite,
-                    );
-                  },
+                CustomPaint(
+                  painter: RopesPainter(
+                    ropeSegments,
+                  ),
+                  size: Size.infinite,
                 ),
               ],
             ),
@@ -328,24 +302,20 @@ class _RopesViewState extends State<RopesPhysics> {
   }
 }
 
-class StringsPainter extends CustomPainter {
-  StringsPainter(
-    this.stripes,
+class RopesPainter extends CustomPainter {
+  RopesPainter(
     this.segments,
   );
 
-  final Shader stripes;
   List<Offset> segments;
 
   @override
   void paint(Canvas canvas, Size size) {
-    // TODO: implement paint
     Paint paint = Paint()
       ..color = Colors.red
       ..strokeWidth = 10.0
       ..strokeJoin = StrokeJoin.round
       ..strokeCap = StrokeCap.round
-      ..shader = stripes
       ..style = PaintingStyle.stroke;
 
     final path = Path();
