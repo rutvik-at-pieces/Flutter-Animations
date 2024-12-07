@@ -126,54 +126,64 @@ class _RopesViewState extends State<RopesPhysics> {
   }
 
   void applyForces() {
-    Vector2 forceGravity = Vector2(0, 1);
+    Vector2 forceGravity = Vector2(0, 10);
 
     for (var i = 0; i < segments; i++) {
-      Offset firstSegment = ropeSegments[i];
-      Vector2 velocity = firstSegment.posNow - oldSegments[i].posNow;
+      Offset firstSegmentPoint = ropeSegments[i];
+      Vector2 velocity = firstSegmentPoint.posNow - oldSegments[i].posNow;
 
-      oldSegments[i] = firstSegment;
-      Vector2 latestPosition = firstSegment.posNow + velocity;
+      oldSegments[i] = firstSegmentPoint;
+      Vector2 latestPosition = firstSegmentPoint.posNow + velocity;
 
       latestPosition += wind;
       latestPosition += forceGravity;
 
-      firstSegment = Offset(latestPosition.x, latestPosition.y);
-      ropeSegments[i] = firstSegment;
+      firstSegmentPoint = Offset(latestPosition.x, latestPosition.y);
+      ropeSegments[i] = firstSegmentPoint;
     }
 
-    for (var i = 0; i < 50; i++) {
+    for (var i = 0; i < 250; i++) {
       applyConstraints();
     }
   }
 
+  /// Constraint resolution algorithm for a rope simulation, ensuring that the segments of the rope maintain a fixed
+  /// length between them.
   void applyConstraints() {
+    // Fix start and end points.
     ropeSegments[0] = ropeStartPoint;
     if (isBridge) {
       ropeSegments[segments - 1] = ropeEndPoint;
     }
 
+    // Constrain adjacent segments.
     for (var i = 0; i < segments - 1; i++) {
-      Vector2 firstSegment = ropeSegments[i].posNow;
-      Vector2 secondSegment = ropeSegments[i + 1].posNow;
-      final dist = (firstSegment).distanceTo(secondSegment);
+      Vector2 firstSegmentPoint = ropeSegments[i].posNow;
+      Vector2 secondSegmentPoint = ropeSegments[i + 1].posNow;
+      final dist = (firstSegmentPoint).distanceTo(secondSegmentPoint);
       double error = (dist - ropeSegmentLength).abs();
+
+      // Calculate direction to adjust the segments in.
       Vector2 changeDir = Vector2.zero();
       if (dist > ropeSegmentLength) {
-        changeDir = (firstSegment - secondSegment).normalized();
+        // Move segment point closer.
+        changeDir = (firstSegmentPoint - secondSegmentPoint).normalized();
       } else if (dist < ropeSegmentLength) {
-        changeDir = (secondSegment - firstSegment).normalized();
+        changeDir = (secondSegmentPoint - firstSegmentPoint).normalized();
       }
 
+      // Distance by which segment points should be moved.
       Vector2 changedAmount = changeDir * error;
+
       if (i != 0) {
-        firstSegment -= changedAmount * 0.5; // multiply by error for proper single point hanging and by 0.5 for bridge;
-        ropeSegments[i] = Offset(firstSegment.x, firstSegment.y);
-        secondSegment += (changedAmount * 0.5);
-        ropeSegments[i + 1] = Offset(secondSegment.x, secondSegment.y);
+        firstSegmentPoint -=
+            changedAmount * 0.5; // multiply by error for proper single point hanging and by 0.5 for bridge;
+        ropeSegments[i] = Offset(firstSegmentPoint.x, firstSegmentPoint.y);
+        secondSegmentPoint += (changedAmount * 0.5);
+        ropeSegments[i + 1] = Offset(secondSegmentPoint.x, secondSegmentPoint.y);
       } else {
-        secondSegment += changedAmount;
-        ropeSegments[i + 1] = Offset(secondSegment.x, secondSegment.y);
+        secondSegmentPoint += changedAmount;
+        ropeSegments[i + 1] = Offset(secondSegmentPoint.x, secondSegmentPoint.y);
       }
     }
   }
@@ -203,7 +213,7 @@ class _RopesViewState extends State<RopesPhysics> {
       elapsedDuration = value;
       setState(() {
         delta += 1 / 60;
-        // applyForces();
+        applyForces();
       });
     })
       ..start();
@@ -312,7 +322,7 @@ class RopesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-      ..color = Colors.red
+      ..color = Colors.black
       ..strokeWidth = 10.0
       ..strokeJoin = StrokeJoin.round
       ..strokeCap = StrokeCap.round
