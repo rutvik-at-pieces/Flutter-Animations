@@ -1,8 +1,6 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animations/custom_painters/blobs.dart';
-import 'package:flutter_animations/flutter_design_challenges/pictures_stack/pictures_stack.dart';
-import 'package:flutter_animations/flutter_gestures/continous_drag_selection/continous_drag_selection.dart';
+import 'package:flutter_animations/flutter_design_challenges/logIn_concept/login_concept.dart';
 
 void main() {
   runApp(
@@ -28,7 +26,7 @@ class MyApp extends StatelessWidget {
         // textTheme: GoogleFonts.rubikTextTheme(Theme.of(context).textTheme),
       ),
       builder: DevicePreview.appBuilder,
-      home: const PicturesStack(),
+      home: const LogInScreen(),
     );
   }
 }
